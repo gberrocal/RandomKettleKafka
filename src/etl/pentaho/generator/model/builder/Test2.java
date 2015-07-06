@@ -11,7 +11,7 @@ public class Test2 {
 			ClassNotFoundException {
 
 		RowGenerator generator = SampleAnalyzer
-				.analyze("C:/PROYECTOS/PRACTICE/ficheros summit/SUMMIT_Trades_15_03_27.csv");
+				.analyze("C:/Users/JRRZ/Desktop/Kettle-Kaftka/prueba.csv");
 
 		String p = RowGeneratorSerializer.serialize(generator);
 		RowGenerator deserialize = RowGeneratorSerializer.deserialize(p);

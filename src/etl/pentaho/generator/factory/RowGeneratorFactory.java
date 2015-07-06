@@ -1,4 +1,4 @@
-package etl.pentaho.generator.model.builder;
+package etl.pentaho.generator.factory;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -7,69 +7,76 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import etl.pentaho.generator.factory.exception.RowGeneratorException;
 import etl.pentaho.generator.model.FieldDistributionModel;
 import etl.pentaho.generator.model.MultiScalarVariableRowGenerator;
 import etl.pentaho.generator.model.RowGenerator;
+import etl.pentaho.generator.model.builder.FieldDistributionModelBuilderDirector;
 
-public class SampleAnalyzer {
+public class RowGeneratorFactory {
 
+	final static Logger logger = Logger.getLogger(RowGeneratorFactory.class);
+	
 	private static MultiScalarVariableRowGenerator multiScalarVariableRowGenerator;
 	
-	public static RowGenerator analyze(String pathToFile) throws IOException {
+	public static RowGenerator getCreatedRowGenerator()throws RowGeneratorException{
+		logger.info("Obtiene la instancia estatica");
+		return multiScalarVariableRowGenerator;
+	}
+	
+	public static RowGenerator createRowGeneratorFromSample(String pathToFile) throws IOException {
 
-		if (multiScalarVariableRowGenerator == null){
-			List<FieldDistributionModelBuilderDirector> builderList = new ArrayList<>();
-			FieldDistributionModelBuilderDirector[] builderArray = null;
-	
-			FileInputStream fis = null;
-			BufferedReader reader = null;
-			int j = 0;
-			try {
-				fis = new FileInputStream(pathToFile);
-				reader = new BufferedReader(new InputStreamReader(fis));
-	
-				// Read line by line
-				String line = reader.readLine();
-			
-	
-				// First line, calculate directors
-				builderArray = firstLine(builderList, line);
-	
-				// Process the rest of lines
+		logger.info("Entra en la creación de la instancia estatica");
+		List<FieldDistributionModelBuilderDirector> builderList = new ArrayList<>();
+		FieldDistributionModelBuilderDirector[] builderArray = null;
+
+		FileInputStream fis = null;
+		BufferedReader reader = null;
+		int j = 0;
+		try {
+			fis = new FileInputStream(pathToFile);
+			reader = new BufferedReader(new InputStreamReader(fis));
+
+			// Read line by line
+			String line = reader.readLine();
+		
+
+			// First line, calculate directors
+			builderArray = firstLine(builderList, line);
+			processLine(builderArray, j, line);
+			// Process the rest of lines
+			line = reader.readLine();
+			j++;
+			while (line != null) {
+				line = processLine(builderArray, j, line);
+
+				// Next line
 				line = reader.readLine();
 				j++;
-				while (line != null) {
-					line = processLine(builderArray, j, line);
-	
-					// Next line
-					line = reader.readLine();
-					j++;
-				}
-	
-				FieldDistributionModel[] fieldDistributions = new FieldDistributionModel[builderArray.length];
-				for (int i = 0; i < builderArray.length; i++) {
-					fieldDistributions[i] = builderArray[i] == null ? null
-							: builderArray[i].getDistributionFieldModel();
-				}
-				
-				multiScalarVariableRowGenerator = new MultiScalarVariableRowGenerator(fieldDistributions);
-				
-				return multiScalarVariableRowGenerator;
-			
-			} finally {
-				if (fis != null) {
-					fis.close();
-				}
-				if (reader != null) {
-					reader.close();
-				}
 			}
-		
-		}else{
+
+			FieldDistributionModel[] fieldDistributions = new FieldDistributionModel[builderArray.length];
+			for (int i = 0; i < builderArray.length; i++) {
+				fieldDistributions[i] = builderArray[i] == null ? null
+						: builderArray[i].getDistributionFieldModel();
+			}
+			
+			multiScalarVariableRowGenerator = new MultiScalarVariableRowGenerator(fieldDistributions);
+			
 			return multiScalarVariableRowGenerator;
+		
+		} finally {
+			if (fis != null) {
+				fis.close();
+			}
+			if (reader != null) {
+				reader.close();
+			}
 		}
 	}
-
+	
 	private static FieldDistributionModelBuilderDirector[] firstLine(
 			List<FieldDistributionModelBuilderDirector> builderList, String line) {
 		FieldDistributionModelBuilderDirector[] builderArray;

@@ -82,4 +82,20 @@ public class FrequencyFieldDistributionModelBuilder implements
 		return true;
 	}
 
+	public Map<String, Long> getValueFrequencyMap() {
+		return valueFrequencyMap;
+	}
+
+	public void setValueFrequencyMap(Map<String, Long> valueFrequencyMap) {
+		this.valueFrequencyMap = valueFrequencyMap;
+	}
+
+	public Long getCount() {
+		return count;
+	}
+
+	public void setCount(Long count) {
+		this.count = count;
+	}
+
 }

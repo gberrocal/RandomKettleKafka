@@ -40,7 +40,30 @@ public class FrequencyFieldDistributionModel implements FieldDistributionModel {
 			res = values[rank - 1];
 		} else {
 			res = values[rank];
-		}
-		return res;
+		}		return res;
+	}
+
+	public String[] getValues() {
+		return values;
+	}
+
+	public void setValues(String[] values) {
+		this.values = values;
+	}
+
+	public Long[] getFrecuencyDistribution() {
+		return frecuencyDistribution;
+	}
+
+	public void setFrecuencyDistribution(Long[] frecuencyDistribution) {
+		this.frecuencyDistribution = frecuencyDistribution;
+	}
+
+	public Long getCount() {
+		return count;
+	}
+
+	public void setCount(Long count) {
+		this.count = count;
 	}
 }
