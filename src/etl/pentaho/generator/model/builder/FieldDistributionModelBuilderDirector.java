@@ -1,11 +1,12 @@
 package etl.pentaho.generator.model.builder;
 
 import etl.pentaho.generator.model.FieldDistributionModel;
+import etl.pentaho.generator.util.Utiles;
 
 public class FieldDistributionModelBuilderDirector {
 
 	public static enum DistributionType {
-		NORMAL, DISCRETE_NORMAL, FREQUENCY
+		NORMAL, DISCRETE_NORMAL, FREQUENCY, DATE, DATETIME
 	}
 
 	private DistributionType type;
@@ -25,10 +26,16 @@ public class FieldDistributionModelBuilderDirector {
 		case FREQUENCY:
 			builder = new FrequencyFieldDistributionModelBuilder();
 			break;
+		case DATE:
+			builder = new DateFieldDistributionModelBuilder();
+			break;
+		case DATETIME:
+			builder = new DateTimeFieldDistributionModelBuilder();
+			break;	
 		}
 	}
 
-	void processFieldValue(String fieldValue) {
+	public void processFieldValue(String fieldValue, int ColumnCount) {
 		builder.processFieldValue(fieldValue);
 	}
 
@@ -37,6 +44,21 @@ public class FieldDistributionModelBuilderDirector {
 	}
 
 	private DistributionType determineType(String firstFieldValue) {
+		/**
+		 *  Hay que comprobar si es una fecha para tratarla diferente al resto
+		 *  Fecha: 
+		 *  	Empieza por 20 (anio 2000)
+		 *  	el 5º y 6º digito son el mes y no puede ser mayor de 12
+		 *  	el 7º y 8º digito son el dia y no puede ser mayor de 31
+		 *  
+		 *  Si cumple estas reglas es una fecha la devolvemos como frequency.
+		 */
+		if (Utiles.isDateTime(firstFieldValue)){
+			return DistributionType.DATETIME;
+		} else if(Utiles.isDate(firstFieldValue)){
+			return DistributionType.DATE;
+		}
+		
 		try {
 			Long.parseLong(firstFieldValue);
 			return DistributionType.DISCRETE_NORMAL;
